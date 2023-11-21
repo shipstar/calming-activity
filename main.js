@@ -61,6 +61,9 @@ function create() {
 
     const callback = () => {
       sounds.purr.play();
+      const anim = "sleep" + Math.floor(Math.random() * 8 + 1);
+      cat.anims.play(anim);
+      cat.y = cat.y + 50;
       this.time.addEvent({
         delay: 10000,
         callback: () => {
@@ -88,6 +91,8 @@ function create() {
             x: this.heart3.x,
             y: this.heart3.y - 50,
           });
+          cat.play("idle");
+          cat.y = cat.y - 50;
         },
       });
     };
@@ -163,6 +168,18 @@ function create() {
     frameRate: 10,
     repeat: -1,
   });
+
+  for (let i = 1; i <= 8; i++) {
+    this.anims.create({
+      key: `sleep${i}`,
+      frames: this.anims.generateFrameNumbers("cat", {
+        start: 12 + i,
+        end: 12 + i,
+      }),
+      frameRate: 10,
+      repeat: 0,
+    });
+  }
 
   sounds.eat = this.sound.add("eat");
   sounds.meow = this.sound.add("meow");
