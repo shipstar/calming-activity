@@ -37,8 +37,10 @@ function create() {
   this.add.image(150, 710, "buttonCat");
   this.add.image(350, 710, "buttonFood");
 
-  cat = this.add.sprite(500, 320, "cat").setScale(0.5);
+  cat = this.physics.add.sprite(500, 320, "cat").setScale(0.5).refreshBody();
   window.cat = cat;
+
+  this.meowTicks = 0;
 
   this.anims.create({
     key: "idle",
@@ -59,7 +61,7 @@ function create() {
     key: "run",
     frames: this.anims.generateFrameNumbers("cat", { start: 7, end: 12 }),
     frameRate: 10,
-    repeat: 0,
+    repeat: -1,
   });
 
   sounds.meow = this.sound.add("meow");
@@ -74,29 +76,52 @@ function create() {
   }
 
   cursors = this.input.keyboard.createCursorKeys();
+
+  let source;
+  let target;
+
+  this.input.on("pointerdown", (pointer) => {
+    this.target = new Phaser.Math.Vector2(pointer);
+
+    this.physics.moveToObject(cat, this.target, 100);
+    cat.anims.play("run", true);
+  });
+
+  cat.anims.play("idle");
 }
 
 function update() {
-  if (cursors.left.isDown) {
-    cat.anims.play("run", true);
-    cat.setPosition(cat.x - 10, cat.y);
-    cat.flipX = false;
-  } else if (cursors.right.isDown) {
-    cat.anims.play("run", true);
-    cat.setPosition(cat.x + 10, cat.y);
-    cat.flipX = true;
-  } else if (cursors.space.isDown) {
-    cat.anims.play("meow", false);
-    sounds.meow.play();
-  } else {
-    cat.anims.play("idle", true);
+  cat.flipX = cat.body.velocity.x > 0;
+
+  if (this.target) {
+    const tolerance = 4;
+    const distance = Phaser.Math.Distance.BetweenPoints(cat, this.target);
+    if (cat.body.speed > 0) {
+      if (distance < tolerance) {
+        cat.body.reset(this.target.x, this.target.y);
+        cat.play("idle");
+      }
+    }
   }
+
+  const rand = Math.random();
+  console.log(this.meowTicks, rand, cat.anims.getName());
+  if (this.meowTicks > 500 && rand > 0.99 && cat.anims.getName() !== "meow") {
+    cat.anims.play("meow").chain("idle");
+    sounds.meow.play();
+    this.meowTicks = 0;
+  }
+
+  this.meowTicks += 1;
 }
 
 const config = {
   type: Phaser.AUTO,
   width: 800,
   height: 800,
+  physics: {
+    default: "arcade",
+  },
   scene: {
     preload: preload,
     create: create,
