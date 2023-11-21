@@ -1,6 +1,8 @@
 import Phaser from "phaser";
 import buttonCatImageUrl from "./assets/images/button-cat.svg";
 import buttonFoodImageUrl from "./assets/images/button-food.svg";
+import buttonSleepImageUrl from "./assets/images/button-sleep.svg";
+import buttonToyImageUrl from "./assets/images/button-toy.svg";
 import catImageUrl from "./assets/images/cat.png";
 import cushionImageUrl from "./assets/images/cushion.svg";
 import foodImageUrl from "./assets/images/food.svg";
@@ -8,6 +10,7 @@ import heartImageUrl from "./assets/images/heart.svg";
 import terraceImageUrl from "./assets/images/terrace.png";
 import catMeowSoundUrl from "./assets/audio/animal-cat-meow-quiet-03.mp3";
 import catEatSoundUrl from "./assets/audio/animal-cat-eat-smack-sequence-02.mp3";
+import catPurrSoundUrl from "./assets/audio/cat-purring-68797.mp3";
 import bgMusicUrl from "./assets/audio/kf010914-alive-pets.mp3";
 
 let cat;
@@ -16,6 +19,8 @@ let sounds = {};
 function preload() {
   this.load.image("buttonCat", buttonCatImageUrl);
   this.load.image("buttonFood", buttonFoodImageUrl);
+  this.load.image("buttonSleep", buttonSleepImageUrl);
+  this.load.image("buttonToy", buttonToyImageUrl);
   this.load.image("cushion", cushionImageUrl);
   this.load.image("food", foodImageUrl);
   this.load.image("heart", heartImageUrl);
@@ -28,6 +33,7 @@ function preload() {
 
   this.load.audio("meow", catMeowSoundUrl);
   this.load.audio("eat", catEatSoundUrl);
+  this.load.audio("purr", catPurrSoundUrl);
   this.load.audio("bgMusic", bgMusicUrl);
 }
 
@@ -35,17 +41,57 @@ function create() {
   window.scene = this;
 
   this.terrace = this.add.image(300, 300, "terrace").setInteractive();
-  this.cushion = this.add.image(200, 440, "cushion").setScale(0.7);
+  this.cushion = this.add.image(200, 500, "cushion");
   this.cushion.visible = false;
   this.food = this.add.image(600, 440, "food").setScale(0.5);
   this.food.visible = false;
 
   this.add.rectangle(400, 725, 800, 200, 0xb8c2ca);
-  this.buttonCat = this.add.image(150, 710, "buttonCat").setInteractive();
-  this.buttonFood = this.add.image(350, 710, "buttonFood").setInteractive();
+  this.buttonCat = this.add.image(145, 710, "buttonCat").setInteractive();
+  this.buttonFood = this.add.image(315, 710, "buttonFood").setInteractive();
+  this.buttonToy = this.add.image(485, 710, "buttonToy").setInteractive();
+  this.buttonSleep = this.add.image(655, 710, "buttonSleep").setInteractive();
 
-  this.buttonCat.on("pointerup", (pointer) => {
-    console.log("clicked cat button");
+  this.buttonSleep.on("pointerup", (pointer) => {
+    this.cushion.visible = true;
+    const newPosition = {
+      x: this.cushion.x,
+      y: this.cushion.y - 100,
+    };
+
+    const callback = () => {
+      sounds.purr.play();
+      this.time.addEvent({
+        delay: 10000,
+        callback: () => {
+          sounds.purr.stop();
+          this.cushion.visible = false;
+          this.heart1 = this.physics.add
+            .image(cat.x, cat.y, "heart")
+            .setScale(0.2);
+          this.heart2 = this.physics.add
+            .image(cat.x + 30, cat.y - 30, "heart")
+            .setScale(0.2);
+          this.heart3 = this.physics.add
+            .image(cat.x, cat.y - 60, "heart")
+            .setScale(0.2);
+
+          moveTo(this, this.heart1, {
+            x: this.heart1.x,
+            y: this.heart1.y - 50,
+          });
+          moveTo(this, this.heart2, {
+            x: this.heart2.x,
+            y: this.heart2.y - 50,
+          });
+          moveTo(this, this.heart3, {
+            x: this.heart3.x,
+            y: this.heart3.y - 50,
+          });
+        },
+      });
+    };
+    moveTo(this, cat, newPosition, callback);
   });
 
   this.buttonFood.on("pointerup", (pointer) => {
@@ -120,6 +166,7 @@ function create() {
 
   sounds.eat = this.sound.add("eat");
   sounds.meow = this.sound.add("meow");
+  sounds.purr = this.sound.add("purr", { volume: 0.3 });
   sounds.bgMusic = this.sound.add("bgMusic", { volume: 0.05, loop: true });
 
   if (!this.sound.locked) {
