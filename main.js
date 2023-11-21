@@ -1,18 +1,22 @@
 import Phaser from "phaser";
+import catMeowImageUrl from "./assets/images/cat-meow.png";
+import starImageUrl from "./assets/images/star.png";
+import terraceImageUrl from "./assets/images/terrace.png";
+import catMeowSoundUrl from "./assets/audio/animal-cat-meow-quiet-03.mp3";
 
 let cat;
 let sounds = {};
 let cursors;
 
 function preload() {
-  this.load.image("terrace", "assets/images/terrace.png");
-  this.load.image("star", "assets/images/star.png");
-  this.load.spritesheet("cat", "assets/images/cat-meow.png", {
+  this.load.image("terrace", terraceImageUrl);
+  this.load.image("star", starImageUrl);
+  this.load.spritesheet("cat", catMeowImageUrl, {
     frameWidth: 500,
     frameHeight: 500,
   });
 
-  this.load.audio("meow", "assets/audio/animal-cat-meow-quiet-03.mp3");
+  this.load.audio("meow", catMeowSoundUrl);
 }
 
 function create() {
