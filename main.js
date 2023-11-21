@@ -29,13 +29,21 @@ function preload() {
 }
 
 function create() {
-  this.add.image(300, 300, "terrace");
+  this.terrace = this.add.image(300, 300, "terrace").setInteractive();
   this.add.image(200, 440, "cushion").setScale(0.7);
   this.add.image(600, 440, "food").setScale(0.5);
 
   this.add.rectangle(400, 725, 800, 200, 0xb8c2ca);
-  this.add.image(150, 710, "buttonCat");
-  this.add.image(350, 710, "buttonFood");
+  this.buttonCat = this.add.image(150, 710, "buttonCat").setInteractive();
+  this.buttonFood = this.add.image(350, 710, "buttonFood").setInteractive();
+
+  this.buttonCat.on("pointerup", (pointer) => {
+    console.log("clicked cat button");
+  });
+
+  this.buttonFood.on("pointerup", (pointer) => {
+    console.log("clicked food button");
+  });
 
   cat = this.physics.add.sprite(500, 320, "cat").setScale(0.5).refreshBody();
   window.cat = cat;
@@ -80,7 +88,7 @@ function create() {
   let source;
   let target;
 
-  this.input.on("pointerdown", (pointer) => {
+  this.terrace.on("pointerup", (pointer) => {
     this.target = new Phaser.Math.Vector2();
     this.target.x = Phaser.Math.Clamp(pointer.x, 100, 700);
     this.target.y = Phaser.Math.Clamp(pointer.y, 300, 520);
