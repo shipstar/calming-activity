@@ -15,6 +15,7 @@ import bgMusicUrl from "./assets/audio/kf010914-alive-pets.mp3";
 
 let cat;
 let sounds = {};
+let eating = false;
 
 function preload() {
   this.load.image("buttonCat", buttonCatImageUrl);
@@ -107,9 +108,11 @@ function create() {
     };
     const callback = () => {
       sounds.eat.play();
+      eating = true;
       this.time.addEvent({
         delay: 4000,
         callback: () => {
+          eating = false;
           sounds.eat.stop();
           this.food.visible = false;
           this.heart1 = this.physics.add
@@ -226,7 +229,9 @@ function update() {
     this.meowTicks = 0;
   }
 
-  this.meowTicks += 1;
+  if (!eating) {
+    this.meowTicks += 1;
+  }
 
   if (this.heart1 && this.heart1.y < 200) {
     this.heart1.destroy();
