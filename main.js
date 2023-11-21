@@ -1,6 +1,5 @@
 import Phaser from "phaser";
 import catImageUrl from "./assets/images/cat.png";
-import starImageUrl from "./assets/images/star.png";
 import terraceImageUrl from "./assets/images/terrace.png";
 import catMeowSoundUrl from "./assets/audio/animal-cat-meow-quiet-03.mp3";
 import bgMusicUrl from "./assets/audio/kf010914-alive-pets.mp3";
@@ -11,7 +10,6 @@ let cursors;
 
 function preload() {
   this.load.image("terrace", terraceImageUrl);
-  this.load.image("star", starImageUrl);
 
   this.load.spritesheet("cat", catImageUrl, {
     frameWidth: 500,
