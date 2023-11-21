@@ -195,7 +195,7 @@ function create() {
   }
 
   this.terrace.on("pointerup", (pointer) => {
-    moveTo(this, pointer);
+    moveTo(this, cat, pointer);
   });
 
   cat.anims.play("idle");
