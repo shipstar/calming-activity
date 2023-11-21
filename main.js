@@ -1,5 +1,9 @@
 import Phaser from "phaser";
+import buttonCatImageUrl from "./assets/images/button-cat.svg";
+import buttonFoodImageUrl from "./assets/images/button-food.svg";
 import catImageUrl from "./assets/images/cat.png";
+import cushionImageUrl from "./assets/images/cushion.svg";
+import foodImageUrl from "./assets/images/food.svg";
 import terraceImageUrl from "./assets/images/terrace.png";
 import catMeowSoundUrl from "./assets/audio/animal-cat-meow-quiet-03.mp3";
 import bgMusicUrl from "./assets/audio/kf010914-alive-pets.mp3";
@@ -9,6 +13,10 @@ let sounds = {};
 let cursors;
 
 function preload() {
+  this.load.image("buttonCat", buttonCatImageUrl);
+  this.load.image("buttonFood", buttonFoodImageUrl);
+  this.load.image("cushion", cushionImageUrl);
+  this.load.image("food", foodImageUrl);
   this.load.image("terrace", terraceImageUrl);
 
   this.load.spritesheet("cat", catImageUrl, {
@@ -21,9 +29,15 @@ function preload() {
 }
 
 function create() {
-  this.add.image(400, 300, "terrace");
+  this.add.image(300, 300, "terrace");
+  this.add.image(200, 440, "cushion").setScale(0.7);
+  this.add.image(600, 440, "food").setScale(0.5);
 
-  cat = this.add.sprite(100, 420, "cat").setScale(0.5);
+  this.add.rectangle(400, 725, 800, 200, 0xb8c2ca);
+  this.add.image(150, 710, "buttonCat");
+  this.add.image(350, 710, "buttonFood");
+
+  cat = this.add.sprite(500, 320, "cat").setScale(0.5);
   window.cat = cat;
 
   this.anims.create({
@@ -82,7 +96,7 @@ function update() {
 const config = {
   type: Phaser.AUTO,
   width: 800,
-  height: 600,
+  height: 800,
   scene: {
     preload: preload,
     create: create,
