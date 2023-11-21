@@ -4,6 +4,7 @@ import buttonFoodImageUrl from "./assets/images/button-food.svg";
 import catImageUrl from "./assets/images/cat.png";
 import cushionImageUrl from "./assets/images/cushion.svg";
 import foodImageUrl from "./assets/images/food.svg";
+import heartImageUrl from "./assets/images/heart.svg";
 import terraceImageUrl from "./assets/images/terrace.png";
 import catMeowSoundUrl from "./assets/audio/animal-cat-meow-quiet-03.mp3";
 import catEatSoundUrl from "./assets/audio/animal-cat-eat-smack-sequence-02.mp3";
@@ -17,6 +18,7 @@ function preload() {
   this.load.image("buttonFood", buttonFoodImageUrl);
   this.load.image("cushion", cushionImageUrl);
   this.load.image("food", foodImageUrl);
+  this.load.image("heart", heartImageUrl);
   this.load.image("terrace", terraceImageUrl);
 
   this.load.spritesheet("cat", catImageUrl, {
@@ -59,14 +61,38 @@ function create() {
         callback: () => {
           sounds.eat.stop();
           this.food.visible = false;
+          this.heart1 = this.physics.add
+            .image(cat.x, cat.y, "heart")
+            .setScale(0.2);
+          this.heart2 = this.physics.add
+            .image(cat.x + 30, cat.y - 30, "heart")
+            .setScale(0.2);
+          this.heart3 = this.physics.add
+            .image(cat.x, cat.y - 60, "heart")
+            .setScale(0.2);
+
+          moveTo(this, this.heart1, {
+            x: this.heart1.x,
+            y: this.heart1.y - 50,
+          });
+          moveTo(this, this.heart2, {
+            x: this.heart2.x,
+            y: this.heart2.y - 50,
+          });
+          moveTo(this, this.heart3, {
+            x: this.heart3.x,
+            y: this.heart3.y - 50,
+          });
         },
       });
     };
-    moveTo(this, newPosition, callback);
+    moveTo(this, cat, newPosition, callback);
   });
 
   cat = this.physics.add.sprite(500, 320, "cat").setScale(0.5).refreshBody();
   window.cat = cat;
+
+  this.add.image("heart", 200, 200);
 
   this.meowTicks = 0;
 
@@ -137,17 +163,30 @@ function update() {
   }
 
   this.meowTicks += 1;
+
+  if (this.heart1 && this.heart1.y < 200) {
+    this.heart1.destroy();
+  }
+  if (this.heart2 && this.heart2.y < 200) {
+    this.heart2.destroy();
+  }
+  if (this.heart3 && this.heart3.y < 200) {
+    this.heart3.destroy();
+  }
 }
 
-const moveTo = (scene, target, callback = null) => {
+const moveTo = (scene, source, target, callback = null) => {
   scene.target = new Phaser.Math.Vector2();
   scene.target.x = Phaser.Math.Clamp(target.x, 100, 700);
   scene.target.y = Phaser.Math.Clamp(target.y, 300, 520);
 
   scene.moveFinished = callback;
 
-  scene.physics.moveToObject(cat, scene.target, 100);
-  cat.anims.play("run", true);
+  scene.physics.moveToObject(source, scene.target, 100);
+
+  if (source === cat) {
+    source.anims.play("run", true);
+  }
 };
 
 const config = {
