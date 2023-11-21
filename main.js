@@ -1,8 +1,9 @@
 import Phaser from "phaser";
-import catMeowImageUrl from "./assets/images/cat-meow.png";
+import catImageUrl from "./assets/images/cat.png";
 import starImageUrl from "./assets/images/star.png";
 import terraceImageUrl from "./assets/images/terrace.png";
 import catMeowSoundUrl from "./assets/audio/animal-cat-meow-quiet-03.mp3";
+import bgMusicUrl from "./assets/audio/kf010914-alive-pets.mp3";
 
 let cat;
 let sounds = {};
@@ -11,12 +12,14 @@ let cursors;
 function preload() {
   this.load.image("terrace", terraceImageUrl);
   this.load.image("star", starImageUrl);
-  this.load.spritesheet("cat", catMeowImageUrl, {
+
+  this.load.spritesheet("cat", catImageUrl, {
     frameWidth: 500,
     frameHeight: 500,
   });
 
   this.load.audio("meow", catMeowSoundUrl);
+  this.load.audio("bgMusic", bgMusicUrl);
 }
 
 function create() {
@@ -26,27 +29,55 @@ function create() {
   window.cat = cat;
 
   this.anims.create({
+    key: "idle",
+    frames: this.anims.generateFrameNumbers("cat", { start: 0, end: 2 }),
+    frameRate: 10,
+    repeat: -1,
+  });
+
+  this.anims.create({
     key: "meow",
-    frames: this.anims.generateFrameNumbers("cat", { start: 0, end: 3 }),
+    frames: this.anims.generateFrameNumbers("cat", { start: 3, end: 6 }),
     frameRate: 10,
     repeat: 0,
     yoyo: true,
   });
 
-  sounds["meow"] = this.sound.add("meow");
+  this.anims.create({
+    key: "run",
+    frames: this.anims.generateFrameNumbers("cat", { start: 7, end: 12 }),
+    frameRate: 10,
+    repeat: 0,
+  });
+
+  sounds.meow = this.sound.add("meow");
+  sounds.bgMusic = this.sound.add("bgMusic", { volume: 0.3, loop: true });
+
+  if (!this.sound.locked) {
+    sounds.bgMusic.play();
+  } else {
+    this.sound.once(Phaser.Sound.Events.UNLOCKED, () => {
+      sounds.bgMusic.play();
+    });
+  }
 
   cursors = this.input.keyboard.createCursorKeys();
 }
 
 function update() {
   if (cursors.left.isDown) {
+    cat.anims.play("run", true);
     cat.setPosition(cat.x - 10, cat.y);
+    cat.flipX = false;
   } else if (cursors.right.isDown) {
+    cat.anims.play("run", true);
     cat.setPosition(cat.x + 10, cat.y);
-  }
-  if (cursors.space.isDown) {
-    cat.anims.play("meow", true);
+    cat.flipX = true;
+  } else if (cursors.space.isDown) {
+    cat.anims.play("meow", false);
     sounds.meow.play();
+  } else {
+    cat.anims.play("idle", true);
   }
 }
 
