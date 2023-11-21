@@ -81,7 +81,9 @@ function create() {
   let target;
 
   this.input.on("pointerdown", (pointer) => {
-    this.target = new Phaser.Math.Vector2(pointer);
+    this.target = new Phaser.Math.Vector2();
+    this.target.x = Phaser.Math.Clamp(pointer.x, 100, 700);
+    this.target.y = Phaser.Math.Clamp(pointer.y, 300, 520);
 
     this.physics.moveToObject(cat, this.target, 100);
     cat.anims.play("run", true);
@@ -105,8 +107,7 @@ function update() {
   }
 
   const rand = Math.random();
-  console.log(this.meowTicks, rand, cat.anims.getName());
-  if (this.meowTicks > 500 && rand > 0.99 && cat.anims.getName() !== "meow") {
+  if (this.meowTicks > 500 && rand > 0.99 && cat.anims.getName() === "idle") {
     cat.anims.play("meow").chain("idle");
     sounds.meow.play();
     this.meowTicks = 0;
