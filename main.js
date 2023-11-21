@@ -6,11 +6,11 @@ import cushionImageUrl from "./assets/images/cushion.svg";
 import foodImageUrl from "./assets/images/food.svg";
 import terraceImageUrl from "./assets/images/terrace.png";
 import catMeowSoundUrl from "./assets/audio/animal-cat-meow-quiet-03.mp3";
+import catEatSoundUrl from "./assets/audio/animal-cat-eat-smack-sequence-02.mp3";
 import bgMusicUrl from "./assets/audio/kf010914-alive-pets.mp3";
 
 let cat;
 let sounds = {};
-let cursors;
 
 function preload() {
   this.load.image("buttonCat", buttonCatImageUrl);
@@ -25,13 +25,18 @@ function preload() {
   });
 
   this.load.audio("meow", catMeowSoundUrl);
+  this.load.audio("eat", catEatSoundUrl);
   this.load.audio("bgMusic", bgMusicUrl);
 }
 
 function create() {
+  window.scene = this;
+
   this.terrace = this.add.image(300, 300, "terrace").setInteractive();
-  this.add.image(200, 440, "cushion").setScale(0.7);
-  this.add.image(600, 440, "food").setScale(0.5);
+  this.cushion = this.add.image(200, 440, "cushion").setScale(0.7);
+  this.cushion.visible = false;
+  this.food = this.add.image(600, 440, "food").setScale(0.5);
+  this.food.visible = false;
 
   this.add.rectangle(400, 725, 800, 200, 0xb8c2ca);
   this.buttonCat = this.add.image(150, 710, "buttonCat").setInteractive();
@@ -42,7 +47,22 @@ function create() {
   });
 
   this.buttonFood.on("pointerup", (pointer) => {
-    console.log("clicked food button");
+    this.food.visible = true;
+    const newPosition = {
+      x: this.food.x + 100,
+      y: this.food.y - 50,
+    };
+    const callback = () => {
+      sounds.eat.play();
+      this.time.addEvent({
+        delay: 4000,
+        callback: () => {
+          sounds.eat.stop();
+          this.food.visible = false;
+        },
+      });
+    };
+    moveTo(this, newPosition, callback);
   });
 
   cat = this.physics.add.sprite(500, 320, "cat").setScale(0.5).refreshBody();
@@ -72,8 +92,9 @@ function create() {
     repeat: -1,
   });
 
+  sounds.eat = this.sound.add("eat");
   sounds.meow = this.sound.add("meow");
-  sounds.bgMusic = this.sound.add("bgMusic", { volume: 0.3, loop: true });
+  sounds.bgMusic = this.sound.add("bgMusic", { volume: 0.05, loop: true });
 
   if (!this.sound.locked) {
     sounds.bgMusic.play();
@@ -83,18 +104,8 @@ function create() {
     });
   }
 
-  cursors = this.input.keyboard.createCursorKeys();
-
-  let source;
-  let target;
-
   this.terrace.on("pointerup", (pointer) => {
-    this.target = new Phaser.Math.Vector2();
-    this.target.x = Phaser.Math.Clamp(pointer.x, 100, 700);
-    this.target.y = Phaser.Math.Clamp(pointer.y, 300, 520);
-
-    this.physics.moveToObject(cat, this.target, 100);
-    cat.anims.play("run", true);
+    moveTo(this, pointer);
   });
 
   cat.anims.play("idle");
@@ -110,6 +121,10 @@ function update() {
       if (distance < tolerance) {
         cat.body.reset(this.target.x, this.target.y);
         cat.play("idle");
+
+        if (this.moveFinished) {
+          this.moveFinished();
+        }
       }
     }
   }
@@ -123,6 +138,17 @@ function update() {
 
   this.meowTicks += 1;
 }
+
+const moveTo = (scene, target, callback = null) => {
+  scene.target = new Phaser.Math.Vector2();
+  scene.target.x = Phaser.Math.Clamp(target.x, 100, 700);
+  scene.target.y = Phaser.Math.Clamp(target.y, 300, 520);
+
+  scene.moveFinished = callback;
+
+  scene.physics.moveToObject(cat, scene.target, 100);
+  cat.anims.play("run", true);
+};
 
 const config = {
   type: Phaser.AUTO,
