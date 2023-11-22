@@ -279,7 +279,7 @@ const moveTo = (scene, source, target, callback = null) => {
 
   scene.moveFinished = callback;
 
-  scene.physics.moveToObject(source, scene.target, 100);
+  scene.physics.moveToObject(source, scene.target, 150);
 
   if (source === cat) {
     source.anims.play(`run-${skin}`, true);
