@@ -3,7 +3,8 @@ import buttonCatImageUrl from "./assets/images/button-cat.svg";
 import buttonFoodImageUrl from "./assets/images/button-food.svg";
 import buttonSleepImageUrl from "./assets/images/button-sleep.svg";
 import buttonToyImageUrl from "./assets/images/button-toy.svg";
-import catImageUrl from "./assets/images/cat.png";
+import blackCatImageUrl from "./assets/images/black-cat.png";
+import whiteLuckyCatImageUrl from "./assets/images/white-lucky-cat.png";
 import cushionImageUrl from "./assets/images/cushion.svg";
 import foodImageUrl from "./assets/images/food.svg";
 import heartImageUrl from "./assets/images/heart.svg";
@@ -14,6 +15,8 @@ import catPurrSoundUrl from "./assets/audio/cat-purring-68797.mp3";
 import bgMusicUrl from "./assets/audio/kf010914-alive-pets.mp3";
 
 let cat;
+const skins = ["black", "whiteLucky"];
+let skin = "black";
 let sounds = {};
 let eating = false;
 
@@ -27,7 +30,12 @@ function preload() {
   this.load.image("heart", heartImageUrl);
   this.load.image("terrace", terraceImageUrl);
 
-  this.load.spritesheet("cat", catImageUrl, {
+  this.load.spritesheet("blackCat", blackCatImageUrl, {
+    frameWidth: 500,
+    frameHeight: 500,
+  });
+
+  this.load.spritesheet("whiteLuckyCat", whiteLuckyCatImageUrl, {
     frameWidth: 500,
     frameHeight: 500,
   });
@@ -53,6 +61,11 @@ function create() {
   this.buttonToy = this.add.image(485, 710, "buttonToy").setInteractive();
   this.buttonSleep = this.add.image(655, 710, "buttonSleep").setInteractive();
 
+  this.buttonCat.on("pointerup", (pointer) => {
+    skin = skin === "black" ? "whiteLucky" : "black";
+    cat.anims.play(`idle-${skin}`);
+  });
+
   this.buttonSleep.on("pointerup", (pointer) => {
     this.cushion.visible = true;
     const newPosition = {
@@ -63,7 +76,7 @@ function create() {
     const callback = () => {
       sounds.purr.play();
       const anim = "sleep" + Math.floor(Math.random() * 8 + 1);
-      cat.anims.play(anim);
+      cat.anims.play(`${anim}-${skin}`);
       cat.y = cat.y + 50;
       this.time.addEvent({
         delay: 10000,
@@ -92,7 +105,7 @@ function create() {
             x: this.heart3.x,
             y: this.heart3.y - 50,
           });
-          cat.play("idle");
+          cat.anims.play(`idle-${skin}`);
           cat.y = cat.y - 50;
         },
       });
@@ -143,46 +156,60 @@ function create() {
     moveTo(this, cat, newPosition, callback);
   });
 
-  cat = this.physics.add.sprite(500, 320, "cat").setScale(0.5).refreshBody();
+  cat = this.physics.add
+    .sprite(500, 320, "blackCat")
+    .setScale(0.5)
+    .refreshBody();
   window.cat = cat;
 
   this.add.image("heart", 200, 200);
 
   this.meowTicks = 0;
 
-  this.anims.create({
-    key: "idle",
-    frames: this.anims.generateFrameNumbers("cat", { start: 0, end: 2 }),
-    frameRate: 10,
-    repeat: -1,
-  });
-
-  this.anims.create({
-    key: "meow",
-    frames: this.anims.generateFrameNumbers("cat", { start: 3, end: 6 }),
-    frameRate: 10,
-    repeat: 0,
-    yoyo: true,
-  });
-
-  this.anims.create({
-    key: "run",
-    frames: this.anims.generateFrameNumbers("cat", { start: 7, end: 12 }),
-    frameRate: 10,
-    repeat: -1,
-  });
-
-  for (let i = 1; i <= 8; i++) {
+  skins.forEach((skin) => {
     this.anims.create({
-      key: `sleep${i}`,
-      frames: this.anims.generateFrameNumbers("cat", {
-        start: 12 + i,
-        end: 12 + i,
+      key: `idle-${skin}`,
+      frames: this.anims.generateFrameNumbers(`${skin}Cat`, {
+        start: 0,
+        end: 2,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+
+    this.anims.create({
+      key: `meow-${skin}`,
+      frames: this.anims.generateFrameNumbers(`${skin}Cat`, {
+        start: 3,
+        end: 6,
       }),
       frameRate: 10,
       repeat: 0,
+      yoyo: true,
     });
-  }
+
+    this.anims.create({
+      key: `run-${skin}`,
+      frames: this.anims.generateFrameNumbers(`${skin}Cat`, {
+        start: 7,
+        end: 12,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+
+    for (let i = 1; i <= 8; i++) {
+      this.anims.create({
+        key: `sleep${i}-${skin}`,
+        frames: this.anims.generateFrameNumbers(`${skin}Cat`, {
+          start: 12 + i,
+          end: 12 + i,
+        }),
+        frameRate: 10,
+        repeat: 0,
+      });
+    }
+  });
 
   sounds.eat = this.sound.add("eat");
   sounds.meow = this.sound.add("meow");
@@ -201,10 +228,11 @@ function create() {
     moveTo(this, cat, pointer);
   });
 
-  cat.anims.play("idle");
+  cat.anims.play(`idle-${skin}`);
 }
 
 function update() {
+  // cat.setTexture(texture, 0);
   cat.flipX = cat.body.velocity.x > 0;
 
   if (this.target) {
@@ -213,7 +241,7 @@ function update() {
     if (cat.body.speed > 0) {
       if (distance < tolerance) {
         cat.body.reset(this.target.x, this.target.y);
-        cat.play("idle");
+        cat.anims.play(`idle-${skin}`);
 
         if (this.moveFinished) {
           this.moveFinished();
@@ -224,7 +252,7 @@ function update() {
 
   const rand = Math.random();
   if (this.meowTicks > 500 && rand > 0.99 && cat.anims.getName() === "idle") {
-    cat.anims.play("meow").chain("idle");
+    cat.anims.play(`meow-${skin}`).chain(`idle-${skin}`);
     sounds.meow.play();
     this.meowTicks = 0;
   }
@@ -254,7 +282,7 @@ const moveTo = (scene, source, target, callback = null) => {
   scene.physics.moveToObject(source, scene.target, 100);
 
   if (source === cat) {
-    source.anims.play("run", true);
+    source.anims.play(`run-${skin}`, true);
   }
 };
 
