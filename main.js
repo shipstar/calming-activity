@@ -79,7 +79,7 @@ function create() {
       cat.anims.play(`${anim}-${skin}`);
       cat.y = cat.y + 50;
       this.time.addEvent({
-        delay: 10000,
+        delay: 6000,
         callback: () => {
           sounds.purr.stop();
           this.cushion.visible = false;
