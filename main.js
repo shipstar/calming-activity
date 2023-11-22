@@ -213,7 +213,7 @@ function create() {
 
   sounds.eat = this.sound.add("eat");
   sounds.meow = this.sound.add("meow");
-  sounds.purr = this.sound.add("purr", { volume: 0.3 });
+  sounds.purr = this.sound.add("purr", { volume: 0.1 });
   sounds.bgMusic = this.sound.add("bgMusic", { volume: 0.05, loop: true });
 
   if (!this.sound.locked) {
